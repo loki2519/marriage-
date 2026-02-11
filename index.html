@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forever Yours Kutti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><defs><filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter><radialGradient id="grad" cx="30%" cy="30%" r="70%"><stop offset="0%" stop-color="%23ff80ab"/><stop offset="100%" stop-color="%23c2185b"/></radialGradient></defs><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(%23grad)" filter="url(%23glow)"/></svg>') 12 12, auto !important;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Floating Hearts */
+        .heart-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 30px;
+            opacity: 0;
+            animation: float-up 10s linear infinite;
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            90% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Login Page */
+        .login-page {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 50px 40px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .login-page h1 {
+            color: #c2185b;
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+
+        .login-page .heart-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartbeat {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #f8bbd0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #c2185b;
+        }
+
+        /* Override Autocomplete background */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px white inset !important;
+            -webkit-text-fill-color: #333 !important;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #e91e63, #f06292);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(233, 30, 99, 0.3);
+        }
+
+        .error-message {
+            color: #c2185b;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        /* Book Container */
+        .book-container {
+            position: relative;
+            z-index: 10;
+            display: none;
+        }
+
+        .book-container.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* THE BOOK - 3D PHYSICS */
+        .book {
+            position: relative;
+            width: 400px;
+            height: 500px;
+            perspective: 1500px;
+        }
+
+        /* THE PAGE - Thick Cardboard Effect */
+        .page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform-origin: left center;
+            /* HINGE ON LEFT */
+            transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+        }
+
+        /* Front and Back faces */
+        .front,
+        .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            background: #ffe6ea;
+            /* SOLID - no transparency */
+            border: 2px solid #e0c2c8;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            overflow: hidden;
+            /* No scroll */
+        }
+
+        .front {
+            border-radius: 0 15px 15px 0;
+        }
+
+        .back {
+            border-radius: 15px 0 0 15px;
+        }
+
+        /* Back face pre-rotated */
+        .back {
+            transform: rotateY(180deg);
+        }
+
+        /* Flipped state */
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        /* Cover Page */
+        .cover-page .front,
+        .page:last-child .back {
+            background: linear-gradient(135deg, #f8bbd0, #f48fb1, #f8bbd0);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .cover-page .front h1 {
+            color: #880e4f;
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+        }
+
+        .cover-page .front p {
+            color: #ad1457;
+            font-size: 20px;
+            font-style: italic;
+        }
+
+        .cover-page .cover-heart {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        /* Content Styling */
+        .page-content h2 {
+            color: #880e4f;
+            font-size: 28px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .page-content p {
+            color: #555;
+            line-height: 1.8;
+            font-size: 16px;
+            text-align: justify;
+        }
+
+        .center-text p,
+        .center-text h2,
+        .center-text h3 {
+            text-align: center !important;
+        }
+
+        /* Photo Grid */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .like-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .like-btn.liked {
+            color: #ff1744;
+            transform: scale(1.2);
+            text-shadow: none;
+        }
+
+        .like-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Controls */
+        /* CSS Removed */
+
+        .hidden {
+            display: none !important;
+        }
+
+        .like-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .like-btn.liked {
+            color: #ff1744;
+            transform: scale(1.2);
+            text-shadow: none;
+        }
+
+        .like-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Mobile Controls */
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: #c2185b;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive Design - Mobile Vertical 3D Flip */
+        @media (max-width: 768px) {
+            .book-container {
+                perspective: 1500px;
+                overflow: hidden;
+                /* Changed back to hidden to avoid scrollbars if not needed, we will flex */
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding-bottom: 20px;
+            }
+
+            .book {
+                position: relative;
+                /* Relative now, so it stacks with buttons */
+                width: 85vw;
+                height: 45vh;
+                /* Adjust height */
+                perspective: 1500px;
+                transform: none;
+                /* Remove centering translate */
+                top: auto;
+                left: auto;
+                margin-bottom: 30px;
+                /* Gap between book and buttons */
+                flex-shrink: 0;
+            }
+
+            .page {
+                transform-origin: top center;
+                transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+            }
+
+            .front,
+            .back {
+                border-radius: 0 0 15px 15px;
+            }
+
+            .front {
+                border-radius: 0 0 15px 15px;
+            }
+
+            .back {
+                border-radius: 15px 15px 0 0;
+                transform: rotateX(180deg);
+                box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .page.flipped {
+                transform: rotateX(-180deg);
+                z-index: 100;
+                /* High z-index when flipped */
+            }
+
+            /* Typography Scale Down */
+            .cover-page .front h1 {
+                font-size: 26px;
+            }
+
+            .cover-page .front p {
+                font-size: 14px;
+            }
+
+            .cover-page .cover-heart {
+                font-size: 40px;
+            }
+
+            .page-content h2 {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .page-content p {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .photo-grid {
+                gap: 5px;
+            }
+
+            /* Controls Positioning - Relative flow */
+            .mobile-controls {
+                display: flex;
+                position: relative;
+                /* Natural flow */
+                bottom: auto;
+                left: auto;
+                transform: none;
+                width: auto;
+                justify-content: center;
+                gap: 20px;
+                z-index: 1000;
+                flex-shrink: 0;
+            }
+
+            .control-btn {
+                background: rgba(255, 255, 255, 0.95);
+                padding: 10px 20px;
+                /* Smaller padding */
+                border-radius: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+                border: 2px solid #f8bbd0;
+                color: #c2185b;
+                font-size: 14px;
+                /* Smaller font */
+                font-weight: bold;
+            }
+
+            /* Login Page */
+            .login-page {
+                width: 90%;
+                padding: 30px 20px;
+            }
+
+            .login-page h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Hearts -->
+    <div class="heart-container" id="heartsContainer"></div>
+
+    <!-- Login Page -->
+    <div class="login-page" id="loginPage">
+        <div class="heart-icon">❤️</div>
+        <h1>Forever Yours</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Secret Key</label>
+                <input type="text" id="secretKey" placeholder="What do I say to you?" required>
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="login-btn">Open Our Diary ❤️</button>
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+    </div>
+
+    <!-- Book Container -->
+    <div class="book-container" id="bookContainer">
+        <div class="book" id="book"></div>
+
+        <!-- Mobile Controls -->
+        <div class="mobile-controls">
+            <button id="prevBtn" class="control-btn">❮ Prev</button>
+            <button id="nextBtn" class="control-btn">Next ❯</button>
+        </div>
+
+        <!-- Hidden YouTube Player -->
+        <div id="player" style="display:none;"></div>
+    </div>
+
+    <script>
+        // Floating hearts
+        const heartsContainer = document.getElementById('heartsContainer');
+        for (let i = 0; i < 20; i++) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.textContent = '❤️';
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.animationDelay = Math.random() * 5 + 's';
+            heart.style.animationDuration = (8 + Math.random() * 4) + 's';
+            heartsContainer.appendChild(heart);
+        }
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const secretKey = document.getElementById('secretKey').value;
+            const password = document.getElementById('password').value;
+
+            if (secretKey.toLowerCase() === 'sadhu' && password === 'rama') {
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('bookContainer').classList.add('active');
+                initializeBook();
+                playBGM(); // Start Music
+            } else {
+                document.getElementById('errorMessage').textContent = 'Incorrect credentials. Try again! ❤️';
+            }
+        });
+
+        // Initialize YouTube Player
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '0',
+                width: '0',
+                videoId: '_t_uuztkAY4', // User's Video ID
+                playerVars: {
+                    'playsinline': 1,
+                    'loop': 1,
+                    'playlist': '_t_uuztkAY4' // Required for loop
+                },
+                events: {
+                    'onReady': onPlayerReady
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            // Player is ready
+        }
+
+        function playBGM() {
+            if (player && player.playVideo) {
+                player.playVideo();
+            }
+        }
+
+        // Load YouTube API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // Book Content
+        const pagesData = [
+            {
+                front: `<div class="cover-heart">❤️</div><h1>రమాసాధు పెళ్లి పుస్తకం</h1><p>Author - Lokesh</p>`,
+                back: `<div class="page-content center-text" style="display:flex; justify-content:center; align-items:center; height:100%;"><h1>❤️</h1></div>`
+            },
+            {
+                front: `<div class="page-content center-text"><h2 style="font-family: 'Great Vibes', cursive; font-size: 2.5em; margin-bottom: 20px; text-decoration: underline;">Index</h2><ul style="list-style: none; padding: 0 0 0 40px; text-align: left; font-size: 1.1em; line-height: 1.8; color: #880e4f;"><li>Invitation (English)</li><li>Invitation (Telugu)</li><li>My Letter</li><li>Photo Gallery</li></ul></div>`,
+                back: `<div class="page-content center-text" style="display:flex; justify-content:center; align-items:center; height:100%;"><h1>❤️</h1></div>`
+            },
+            {
+                front: `<div class="page-content center-text" style="margin-top: -30px;">
+                            <h2>Invitation</h2>
+                            <p><strong>Srirasthu amasthu avignamastu</strong></p>
+                            <p>Smt Tholadda Lakshmi Bhai (W/o Late Sri Jagga Rao)<br>
+                            Solicit your gracious presence with family on the occasion of the marriage of our last daughter</p>
+                            <h3>Chy. Sou. Ramanamma (Rama)</h3>
+                            <p>With</p>
+                            <h3>Chy. Sadhu Reddy</h3>
+                            <p>(Second Son of Sri Maddi Sadhu Reddy Garu of Visakhapatnam)</p>
+                            <p><strong>Sumuhurtham:</strong><br>
+                            On Wednesday 11-2-2004 night at 1-01 hrs.</p>
+                        </div>`,
+                back: `<div class="page-content center-text" style="margin-top: -30px;">
+                            <h2>Venue & Dinner</h2>
+                            <p><strong>Venue:</strong><br>
+                            At Garuda Vari Satram,<br>
+                            Opp. M.V.D.M. High School,<br>
+                            Lakshmi Talkies Jn.,<br>
+                            Visakhapatnam – 1.</p>
+                            <p><strong>Dinner:</strong><br>
+                            On Wednesday 11th Feb, 2004<br>
+                            from 7-00 p.m. onwards at the marriage venue.</p>
+                        </div>`
+            },
+            {
+                front: `<div class="page-content center-text" style="margin-top: -30px;">
+                            <h2>శుభలేఖ</h2>
+                            <p><strong>శ్రీరాస్తు శుభమస్తు అవిఘ్నమస్తు</strong></p>
+                            <p>శ్రీమతి తోలడ్డ లక్ష్మీబాయి (దివంగత శ్రీ జగ్గారావు గారి భార్య) వారి శుభాశీస్సులతో<br>
+                            స్వస్తి శ్రీ చాంద్రమాన శ్రీ స్వస్తిశ్రీ నామ సంవత్సర మాఘ బహుళ పంచమి బుధవారం రాత్రి గం॥ 1-01 నిమిషాలకు<br>
+                            తేది 11-2-2004 అంగ్ల సంవత్సర ప్రకారం శుభ ముహూర్తమున</p>
+                            <p>మా కన్యా పుత్రిక<br>
+                            <strong>వధువు : చి॥ సౌ॥ రమణమ్మ (రమ)</strong></p>
+                            <p><strong>వరుడు : చి॥ సాధురెడ్డి</strong><br>
+                            (విశాఖపట్నం వాసులు శ్రీ మడ్డి సాధురెడ్డి గారి ద్వితీయ కుమారుడు)</p>
+                        </div>`,
+                back: `<div class="page-content center-text" style="margin-top: -30px;">
+                             <h2>వివాహ వివరములు</h2>
+                             <p><strong>సుముహూర్తం :</strong><br>
+                             తేది 11-2-2004 బుధవారం రాత్రి గం॥ 1-01 నిమిషాలకు</p>
+                             <p><strong>కళ్యాణ వేదిక :</strong><br>
+                             లక్ష్మీ టాకీస్ జంక్షన్, ఎం.వి.డి.ఎం. హైస్కూల్ ఎదురుగా,<br>
+                             గరుడవారి సత్రం, విశాఖపట్నం.</p>
+                             <p><strong>విందు :</strong><br>
+                             తేది 11-2-2004 బుధవారం సాయంత్రం గం॥ 7-00 నుండి కళ్యాణ వేదిక వద్ద.</p>
+                             <p><strong>ఆహ్వానితులు :</strong><br>
+                             బంధుమిత్రులందరూ విచ్చేసి వధూవరులను ఆశీర్వదించవలసిందిగా కోరుచున్నాము.<br>
+                             తోలడ్డ లక్ష్మీబాయి</p>
+                        </div>`
+            },
+            {
+                front: `<div class="page-content" style="text-align: left;">
+                            <h2>Letter</h2>
+                            <p>ప్రియమైన నా జీవిత భాగస్వామి,</p>
+                            <p>నేను నీ పక్కన కనిపించకపోయినా,
+                            నా ప్రేమ మాత్రం ఎప్పటికీ నీతోనే ఉంటుంది.
+                            మన ఇద్దరం కలిసి నడిచిన ఆ సంవత్సరాలు
+                            నా జీవితంలో అత్యంత అందమైన జ్ఞాపకాలు.
+                            నీ నవ్వు నాకు ఎప్పుడూ బలం ఇచ్చింది,
+                            నీ సహనం మా కుటుంబానికి నిలువుదోపిడీ అయింది.</p>
+                            <p>నువ్వు ఎంత ధైర్యమైన మహిళవో
+                            నాకు ఎప్పుడూ గర్వమే.
+                            ఇప్పుడూ అదే ధైర్యంతో ముందుకు సాగు.
+                            నీ కన్నీరు కంటే నీ నవ్వే నాకు ఇష్టం.</p>
+                        </div>`,
+                back: `<div class="page-content" style="text-align: left;">
+                            <p>పిల్లల కోసం, నీ కోసం,
+                            జీవితాన్ని ప్రేమతో కొనసాగించు.
+                            నేను దూరంగా లేను —
+                            నీ ప్రతి ఊపిరిలో, ప్రతి జ్ఞాపకంలోనే ఉన్నాను.
+                            నిన్ను ప్రేమించడం నాకు ఎప్పటికీ ఆగదు.</p>
+                            <br>
+                            <p>ఎప్పటికీ నీ వాడినే<br>
+                            <strong>నీ జీవిత భాగస్వామి.<br>సాధు రావు</strong></p>
+                        </div>`
+            },
+            {
+                front: generatePhotoPage([1, 2, 3, 4]),
+                back: generatePhotoPage([5, 6, 7, 8])
+            }
+        ];
+
+        // Add photo pages
+        // Reduced limit to exclude blank pages (photos > 24)
+        for (let i = 9; i < 25; i += 8) {
+            pagesData.push({
+                front: generatePhotoPage([i, i + 1, i + 2, i + 3]),
+                back: generatePhotoPage([i + 4, i + 5, i + 6, i + 7])
+            });
+        }
+
+        // Final Message Page (Promise - Telugu)
+        pagesData.push({
+            front: `<div class="page-content" style="text-align: left;">
+                        <h2>నా వాగ్దానం</h2>
+                        <p>ప్రియమైన నా ప్రాణసఖి,</p>
+                        <p>ఈ జన్మలో నువ్వు నా జీవిత భాగస్వామి అవడం
+                        నా అదృష్టంలో గొప్ప వరం.
+                        నీ ప్రేమ, నీ సహనం, నీ అండ —
+                        ఇవే నా జీవితాన్ని సంపూర్ణం చేశాయి.</p>
+                        <p>నిన్ను ఇలా మధ్యలో వదిలి వెళ్లాల్సి వచ్చినందుకు
+                        నన్ను క్షమించు.
+                        అది నా ఇష్టం కాదు… కానీ పరిస్థితి.
+                        నిన్ను బాధ పెట్టాలని ఎప్పుడూ అనుకోలేదు.</p>
+                    </div>`,
+            back: `<div class="page-content" style="text-align: left;">
+                        <p>నేను ఇప్పుడు నీ పక్కన లేకపోయినా,
+                        నా మనసు మాత్రం ఎప్పుడూ నీతోనే ఉంటుంది.
+                        ఒక మాట మాత్రం నీకు వాగ్దానం చేస్తున్నాను —
+                        ఎన్ని జన్మలు వచ్చినా,
+                        నా హృదయం నిన్నే వెతుకుతుంది.</p>
+                        <p>మళ్లీ జన్మ ఉంటే,
+                        మళ్లీ నిన్నే పెళ్లి చేసుకుంటాను.
+                        ఎందుకంటే నా ప్రేమ ఒక్క నీకే,
+                        ఎప్పటికీ మారని ప్రేమ.</p>
+                        <p>నువ్వు ధైర్యంగా ఉండాలి,
+                        నీ నవ్వే నాకు శాంతి.
+                        నేను ఎక్కడ ఉన్నా,
+                        నీ ఆనందమే నా కోరిక.</p>
+                        <p>ఎప్పటికీ నిన్ను ప్రేమించే<br>
+                        <strong>నీ జీవిత భాగస్వామి.</strong></p>
+                    </div>`
+        });
+
+        // Back Cover
+        pagesData.push({
+            front: `<div class="page-content center-text" style="display:flex; justify-content:center; align-items:center; height:100%;"><h1>❤️</h1></div>`,
+            back: `<div class="page-content center-text" style="display:flex; justify-content:center; align-items:center; height:100%;"><h1 style="transform: rotate(-45deg); font-size: 3em; color: #c2185b; text-align: center; line-height: 1.5; margin: 0;">I LOVE U<br>RAMA</h1></div>`
+        });
+
+        function generatePhotoPage(photoNumbers) {
+            let html = '<div class="page-content"><h2>Our Beautiful Memories</h2><div class="photo-grid">';
+            photoNumbers.forEach(num => {
+                if (num <= 30) {
+                    html += `<div class="photo-item">
+                        <img src="/assets/photo${num}.jpg" alt="Memory ${num}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23f8bbd0%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23c2185b%22%3EPhoto ${num}%3C/text%3E%3C/svg%3E'">
+                        <div class="like-btn" onclick="this.classList.toggle('liked')">♥</div>
+                    </div>`;
+                }
+            });
+            html += '</div></div>';
+            return html;
+        }
+
+        let pages = [];
+        let currentPageIndex = 0;
+
+        function initializeBook() {
+            const book = document.getElementById('book');
+
+            // Create all pages
+            pagesData.forEach((pageData, index) => {
+                const page = document.createElement('div');
+                page.className = index === 0 ? 'page cover-page' : 'page';
+
+                const front = document.createElement('div');
+                front.className = 'front';
+                front.innerHTML = pageData.front;
+
+                const back = document.createElement('div');
+                back.className = 'back';
+                back.innerHTML = pageData.back;
+
+                page.appendChild(front);
+                page.appendChild(back);
+                book.appendChild(page);
+                pages.push(page);
+            });
+
+            // Initial setup
+            updateZIndexes();
+            // Initial setup
+            updateZIndexes();
+            // updateButtons(); - Removed
+        }
+
+        // State-based Z-Index Logic
+        function updateZIndexes(movingPage = null) {
+            pages.forEach((page, index) => {
+                if (page === movingPage) {
+                    // Moving page always on top
+                    page.style.zIndex = 200;
+                } else if (index < currentPageIndex) {
+                    // Left stack: Ascending (0 at bottom, N at top)
+                    page.style.zIndex = index;
+                } else {
+                    // Right stack: Descending (Current at top, N at bottom)
+                    // Offset by 100 to ensure Right stack is above Left stack (usually)
+                    // But actually, for 3D book, we want the "next" page to be top of right
+                    page.style.zIndex = pages.length - index + 100;
+                }
+            });
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                if (currentPageIndex < pages.length) {
+                    const page = pages[currentPageIndex];
+                    updateZIndexes(page);
+                    page.classList.add('flipped');
+                    currentPageIndex++;
+                    setTimeout(() => updateZIndexes(), 1200);
+                }
+            } else if (e.key === 'ArrowLeft') {
+                if (currentPageIndex > 0) {
+                    currentPageIndex--;
+                    const page = pages[currentPageIndex];
+                    updateZIndexes(page);
+                    page.classList.remove('flipped');
+                    setTimeout(() => updateZIndexes(), 1200);
+                }
+            }
+        });
+
+        // Mobile Button Controls
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentPageIndex < pages.length) {
+                const page = pages[currentPageIndex];
+                updateZIndexes(page);
+                page.classList.add('flipped');
+                currentPageIndex++;
+                setTimeout(() => updateZIndexes(), 1200);
+            }
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                const page = pages[currentPageIndex];
+                updateZIndexes(page);
+                page.classList.remove('flipped');
+                setTimeout(() => updateZIndexes(), 1200);
+            }
+        });
+
+        // Initialize Call
+        updateZIndexes();
+    </script>
+</body>
+
+</html>
