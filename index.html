@@ -735,6 +735,18 @@
                     </div>`
         });
 
+        // Happy Marriage Day Page
+        pagesData.push({
+            front: `<div class="page-content center-text" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;">
+                        <div class="heart-icon" style="font-size: 50px; margin-bottom: 20px;">💑</div>
+                        <h1 style="color: #c2185b; font-size: 2.5em; text-align: center; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(255,255,255,0.5);">Happy<br>Marriage<br>Day!</h1>
+                    </div>`,
+            back: `<div class="page-content center-text" style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%;">
+                        <h2 style="color: #880e4f; text-align: center; font-family: 'Great Vibes', cursive; font-size: 2em;">To a lifetime of love and happiness together.</h2>
+                        <div class="heart-icon" style="font-size: 40px; margin-top: 20px;">❤️</div>
+                   </div>`
+        });
+
         // Back Cover
         pagesData.push({
             front: `<div class="page-content center-text" style="display:flex; justify-content:center; align-items:center; height:100%;"><h1>❤️</h1></div>`,
@@ -746,7 +758,7 @@
             photoNumbers.forEach(num => {
                 if (num <= 30) {
                     html += `<div class="photo-item">
-                        <img src="/assets/photo${num}.jpg" alt="Memory ${num}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23f8bbd0%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23c2185b%22%3EPhoto ${num}%3C/text%3E%3C/svg%3E'">
+                        <img src="assets/photo${num}.jpg" alt="Memory ${num}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23f8bbd0%22 width=%22200%22 height=%22200%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2220%22 fill=%22%23c2185b%22%3EPhoto ${num}%3C/text%3E%3C/svg%3E'">
                         <div class="like-btn" onclick="this.classList.toggle('liked')">♥</div>
                     </div>`;
                 }
